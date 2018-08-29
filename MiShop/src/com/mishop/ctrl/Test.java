@@ -83,6 +83,8 @@ public class Test extends HttpServlet {
 		out.print("运行完毕");
 		out.print("解决编码问题");
 		
+		out.print("hello");
+		
 	}
 
 }
