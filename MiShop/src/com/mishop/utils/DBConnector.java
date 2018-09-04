@@ -30,7 +30,7 @@ public class DBConnector {
 		Connection conn = null;
 		try {
 			conn = dataSource.getConnection();
-			System.out.println("获取数据库连接："+conn);
+//			System.out.println("获取数据库连接："+conn);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

@@ -97,13 +97,4 @@ public class Admin {
 		this.updateTime = updateTime;
 	}
 
-	@Override
-	public String toString() {
-		return "Admin [adminId=" + adminId + ", adminAccount=" + adminAccount + ", adminPassword=" + adminPassword
-				+ ", role=" + role + ", status=" + status + ", createTime=" + createTime + ", updateTime=" + updateTime
-				+ "]";
-	}
-	
-	
-
 }

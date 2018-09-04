@@ -1,24 +1,25 @@
 package com.mishop.utils;
 
-import javax.sql.DataSource;
-
-import com.mchange.v2.c3p0.ComboPooledDataSource;
-
+/*
+ * C3P0工具类
+ */
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import javax.sql.DataSource;
+
+import com.mchange.v2.c3p0.ComboPooledDataSource;
+
 public class DataSourceUtils {
 
-	private static DataSource dataSource = new ComboPooledDataSource();
-	
+	private static DataSource dataSource = new ComboPooledDataSource("mysql");
 
 	private static ThreadLocal<Connection> tl = new ThreadLocal<Connection>();
 
 	// 直接可以获取一个连接池
 	public static DataSource getDataSource() {
-		System.out.println(dataSource.getClass());
 		return dataSource;
 	}
 
@@ -78,6 +79,5 @@ public class DataSourceUtils {
 			rs.close();
 		}
 	}
-	
 
 }
