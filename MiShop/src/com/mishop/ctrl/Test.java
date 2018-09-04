@@ -20,6 +20,5 @@ public class Test {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println(admin.toString());
 	}
 }
