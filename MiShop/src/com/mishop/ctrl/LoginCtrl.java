@@ -20,23 +20,10 @@ import com.mishop.utils.MD5Util;
  */
 @WebServlet("/LoginCtrl")
 public class LoginCtrl extends HttpServlet {
-	
-	private static final long serialVersionUID = 1L;
-	
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
-    public LoginCtrl() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
-
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		// response.getWriter().append("Served at: ").append(request.getContextPath());
 		this.doPost(request, response);
 	}
 
@@ -44,20 +31,12 @@ public class LoginCtrl extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		// doGet(request, response);
-		// 指定请求文本的编码
-		request.setCharacterEncoding("UTF-8");
-		// 设置响应文本的编码
-		response.setCharacterEncoding("UTF-8");
-		// 设置响应文本的类型
-		response.setContentType("text/html;charset=utf-8");
 		PrintWriter out = response.getWriter();
 		// 获取用户名和密码
 		String username = request.getParameter("username");
 		String password = request.getParameter("password");
 		String remeber = request.getParameter("remeber");
-		Admin admin = new AdminServiceImpl().queryUserByName(username);
+		Admin admin = AdminServiceImpl.getInstance().queryUserByName(username);
 		if(admin == null) {
 			// 如果返回为空，则说明账号不存在
 			out.print("invalid user");

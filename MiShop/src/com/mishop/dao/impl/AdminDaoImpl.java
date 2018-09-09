@@ -7,18 +7,25 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.dbutils.QueryRunner;
+import org.apache.commons.dbutils.handlers.BeanHandler;
+import org.apache.commons.dbutils.handlers.BeanListHandler;
+
 import com.mishop.entity.Admin;
+import com.mishop.entity.Count;
 import com.mishop.utils.DBConnector;
+import com.mishop.utils.DataSourceUtils;
 
 /**
  * 懒汉式编写Dao层
+ * 
  * @author LY
  *
  */
 public class AdminDaoImpl {
 
 	private static AdminDaoImpl adminDaoImpl = null;
-	
+
 	public int rowCount;
 	public int pageCount;
 
@@ -38,7 +45,7 @@ public class AdminDaoImpl {
 	}
 
 	/**
-	 *  获取管理员列表
+	 * 获取管理员列表
 	 * 
 	 * @return
 	 */
@@ -63,9 +70,9 @@ public class AdminDaoImpl {
 				admin.setRole(rs.getInt("role"));
 				admin.setStatus(rs.getInt("status"));
 				admin.setCreateTime(new java.util.Date(rs.getTimestamp("create_time").getTime()));
-//				admin.setCreateTime(new java.util.Date(rs.getDate("create_time").getTime()));
+				// admin.setCreateTime(new java.util.Date(rs.getDate("create_time").getTime()));
 				admin.setUpdateTime(new java.util.Date(rs.getTimestamp("update_time").getTime()));
-//				admin.setUpdateTime(new java.util.Date(rs.getDate("update_time").getTime()));
+				// admin.setUpdateTime(new java.util.Date(rs.getDate("update_time").getTime()));
 				adminList.add(admin);
 			}
 			return adminList;
@@ -75,61 +82,35 @@ public class AdminDaoImpl {
 		}
 		return null;
 	}
-	
-	
+
 	/**
-	 * 分页查询
-	 * 关键变量
-	 * 1、每一页的记录条数：pageSize  ——>  从view层获得
-	 * 2、当前页数：pageNow	 ——>  从view层获得
-	 * 3、总记录条数：rowCount  ——>  通过sql查询得到
-	 * 4、总页数：pageCount  ——>  根据总记录条数计算得到
+	 * 分页查询 关键变量 
+	 * 1、每一页的记录条数：pageSize ——> 从view层获得 
+	 * 2、当前页数：pageNow ——> 从view层获得 
+	 * 3、总记录条数：rowCount ——> 通过sql查询得到 
+	 * 4、总页数：pageCount ——> 根据总记录条数计算得到 
 	 */
-	public List<Admin> queryAdminsByPage(int pageNow,int pageSize){
-		Connection conn = null;
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		List<Admin> list = new ArrayList<Admin>();
+	public List<Admin> queryAdminsByPage(int pageNow, int pageSize, String key) {
+		QueryRunner runner = new QueryRunner(DataSourceUtils.getDataSource());
+		// sql1:查询总的记录条数
+		String sql1 = "select count(admin_id) as num from tb_admin where admin_account like '%"+key+"%'";
+		// sql2:分页查询
+		String sql2 = "select admin_id as adminId,admin_account as adminAccount,admin_password as adminPassword,role,status,create_time as createTime,update_time as updateTime from tb_admin where admin_account like '%"+key+"%' limit ?,?";
 		try {
-			conn = DBConnector.getConnection();
-			pstmt = conn.prepareStatement("select count(admin_id) from tb_admin");
-			rs = pstmt.executeQuery();
-			if(rs.next()) {
-				rowCount = rs.getInt(1);
-				if(rowCount % pageSize == 0) {
-					pageCount = rowCount / pageSize;
-				} else {
-					pageCount = rowCount / pageSize + 1;
-				}
+			// 获取总的记录条数
+			Count count = runner.query(sql1, new BeanHandler<Count>(Count.class));
+			rowCount = count.getNum();
+			// 获取总页数
+			if (rowCount % pageSize == 0) {
+				pageCount = rowCount / pageSize;
+			} else {
+				pageCount = rowCount / pageSize + 1;
 			}
-			// 分页语句中"?,?",第一个"?"表示从第几条记录开始查询，第二个"?"表示查询多少条记录
-			pstmt = conn.prepareStatement("select * from tb_admin limit ?,?");
-			// 1、计算读取数据的范围
-			int minRow = pageSize * (pageNow-1);
-//			int maxRow = pageSize * pageNow;
-//			System.out.println("minRow = " + minRow);
-//			System.out.println("maxRow = " + maxRow);
-			pstmt.setInt(1, minRow);
-//			pstmt.setInt(2, maxRow);
-			pstmt.setInt(2, pageSize);
-			// 2、执行sql查询
-			rs = pstmt.executeQuery();
-			while(rs.next()) {
-				Admin admin = new Admin();
-				admin.setAdminId(rs.getInt("admin_id"));
-				admin.setAdminAccount(rs.getString("admin_account"));
-				admin.setAdminPassword(rs.getString("admin_password"));
-				admin.setRole(rs.getInt("role"));
-				admin.setStatus(rs.getInt("status"));
-				admin.setCreateTime(new java.util.Date(rs.getTimestamp("create_time").getTime()));
-//				admin.setCreateTime(new java.util.Date(rs.getDate("create_time").getTime()));
-				admin.setUpdateTime(new java.util.Date(rs.getTimestamp("update_time").getTime()));
-//				admin.setUpdateTime(new java.util.Date(rs.getDate("update_time").getTime()));
-				list.add(admin);
-			}
-			return list;
+			int minRow = pageSize * (pageNow - 1);
+			Object[] params = { minRow, pageSize };
+			List<Admin> adminList = runner.query(sql2, new BeanListHandler<Admin>(Admin.class), params);
+			return adminList;
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return null;
@@ -161,9 +142,9 @@ public class AdminDaoImpl {
 				admin.setRole(rs.getInt("role"));
 				admin.setStatus(rs.getInt("status"));
 				admin.setCreateTime(new java.util.Date(rs.getTimestamp("create_time").getTime()));
-//				admin.setCreateTime(new java.util.Date(rs.getDate("create_time").getTime()));
+				// admin.setCreateTime(new java.util.Date(rs.getDate("create_time").getTime()));
 				admin.setUpdateTime(new java.util.Date(rs.getTimestamp("update_time").getTime()));
-//				admin.setUpdateTime(new java.util.Date(rs.getDate("update_time").getTime()));
+				// admin.setUpdateTime(new java.util.Date(rs.getDate("update_time").getTime()));
 				return admin;
 			} else {
 				// 查询结果为空
@@ -175,42 +156,59 @@ public class AdminDaoImpl {
 		}
 		return null;
 	}
+	
+	/**
+	 * 根据用户的ID，删除管理员
+	 * @param adminId
+	 * @return
+	 */
+	public boolean deleteById(int adminId) {
+		QueryRunner runner = new QueryRunner(DataSourceUtils.getDataSource());
+		String sql = "delete from tb_admin where admin_id = ?";
+		int count = 0;
+		Object[] params = {adminId};
+		// 执行插入操作
+		try {
+			count = runner.update(sql, params);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		// 返回布尔类型的数据
+		if(count == 0) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
+	/**
+	 * 添加管理员
+	 * @param admin
+	 * @return
+	 */
+	public int insertAdmin(Admin admin) {
+		QueryRunner runner = new QueryRunner(DataSourceUtils.getDataSource());
+		String sql = "insert into tb_admin(admin_account,admin_password,role,status,create_time,update_time) "
+				+ " values(?,?,?,?,now(),now())";
+		int count = 0;
+		Object[] params = {
+			admin.getAdminAccount(),
+			admin.getAdminPassword(),
+			admin.getRole(),
+			admin.getStatus()
+		};
+		// 执行插入操作
+		try {
+			count = runner.update(sql, params);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return count;
+	}
 
 	public static void main(String[] args) {
-//		AdminDaoImpl adi = new AdminDaoImpl();
-//		List<Admin> adminList = adi.queryAdmins();
-//		for (Admin a : adminList) {
-//			System.out.println(a.getAdminAccount());
-//		}
-//		Admin admin = adi.queryAdminByName("admin");
-//		System.out.println(admin.getAdminAccount());
-		
-		// 指定pageSize（每一页显示多少行）
-		AdminDaoImpl adi = AdminDaoImpl.getInstance();
-		List<Admin> adminList = adi.queryAdminsByPage(1, 5);
-		
-		for(Admin a: adminList) {
-			System.out.println(a.getAdminAccount());
-		}
-		
-		/*
-		
-		Map<String, Object> resultMap = new HashMap<String, Object>();
-		resultMap.put("total", AdminDaoImpl.getInstance().rowCount);
-		resultMap.put("rows",adminList);
-		
-		// 转换的配置信息(实现JsonValueProcessor中的方法)
-		JsonConfig jsonConfig = new JsonConfig();
-		jsonConfig.registerJsonValueProcessor(Date.class, new JsonDateValueProcessor());
-		// 将map按照指定的转换格式转换成json
-		JSONObject jsonObject = JSONObject.fromObject(resultMap,jsonConfig);
-		System.out.println(jsonObject.toString());
-//		JSONArray jsArr = JSONArray.fromObject(resultMap,jsonConfig);
-//		System.out.println(jsArr.toString());
-		 
-		*/
-		
-		
 		
 	}
 

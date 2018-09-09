@@ -7,6 +7,6 @@
 <title>Insert title here</title>
 </head>
 <body>
-<img src="${pageContext.request.contextPath}/WEB-INF/upload/e/8/3b6ec61924254e4aa1403bf4e1142cd6.jpg"/>
+	<img src='${str}upload/8/e/2302c184b9454f81a1119b1afa63e5ad.jpg'/>
 </body>
 </html>

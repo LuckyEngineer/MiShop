@@ -4,11 +4,58 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
 public class UploadUtils {
+	
+	/**
+	 * 
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	public static String uploadFile(HttpServletRequest request, HttpServletResponse response) {
+		String imageUrl = "";
+		// 保存图片的路径
+		String savePath = new File(request.getServletContext().getRealPath("/")).getParent();
+		// 1、创建一个DiskFileItemFactory工厂
+		DiskFileItemFactory factory = new DiskFileItemFactory();
+		// 2、创建一个文件上传解析器
+		ServletFileUpload upload = new ServletFileUpload(factory);
+		// 3、解决上传文件名的中文乱码
+		upload.setHeaderEncoding("UTF-8");
+		try {
+			List<FileItem> list = upload.parseRequest(request);
+			for(FileItem item:list) {
+				String fileName = item.getName();
+				if(fileName != null) {
+					try {
+						imageUrl = UploadUtils.saveFile(item, savePath);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		} catch(FileUploadException e) {
+			e.printStackTrace();
+		}
+		
+		return null;
+		
+		
+	}
+	
+	
 	/**
 	 * 
 	 * @param item
@@ -59,6 +106,8 @@ public class UploadUtils {
 		is.close();
 		// 删除处理文件上传时生成的临时文件
 		item.delete();
-		return savaFileName;
+		// 需要返回相对路径
+		String relativePath = "/upload/" + dir1 + "/" + dir2 + "/" + fileName;
+		return relativePath;
 	}
 }
