@@ -14,8 +14,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.mishop.dao.impl.ProductCategoryDaoImpl;
+import com.mishop.entity.Category;
 import com.mishop.entity.Product;
 import com.mishop.entity.ProductCategory;
+import com.mishop.service.impl.CategoryServiceImpl;
 import com.mishop.service.impl.ProductServiceImpl;
 
 import net.sf.json.JSONObject;
@@ -35,7 +37,20 @@ public class ProductMainCtrl extends HttpServlet {
 			this.checkName(request, response);
 		} else if (method.equals("queryByPage")) {
 			this.queryByPage(request, response);
+		} else if (method.equals("queryCategory")) {
+			this.queryCategory(request, response);
 		}
+	}
+	
+	/**
+	 * 查询商品类别
+	 * @throws IOException 
+	 * @throws ServletException 
+	 */
+	private void queryCategory(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		List<Category> list = CategoryServiceImpl.getInstance().queryCategorys();
+		request.setAttribute("cates", list);
+		request.getRequestDispatcher("/admin-product-add.jsp").forward(request, response);
 	}
 
 	/**

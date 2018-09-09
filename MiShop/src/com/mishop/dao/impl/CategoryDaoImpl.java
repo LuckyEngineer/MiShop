@@ -74,7 +74,7 @@ public class CategoryDaoImpl {
 	 */
 	public List<Category> queryCategory(){
 		QueryRunner runner = new QueryRunner(DataSourceUtils.getDataSource());
-		String sql = "select * from tb_category";
+		String sql = "select product_category_id as categoryId,name from tb_category";
 		
 		Category category = null;
 		

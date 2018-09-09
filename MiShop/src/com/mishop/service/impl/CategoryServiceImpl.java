@@ -62,6 +62,14 @@ public class CategoryServiceImpl {
 		return CategoryDaoImpl.getInstance().deleteCategory(id);
 	}
 	
+	/**
+	 * 查询商品类别
+	 * @return
+	 */
+	public List<Category> queryCategorys(){
+		return CategoryDaoImpl.getInstance().queryCategory();
+	}
+	
 }
 	
 	
